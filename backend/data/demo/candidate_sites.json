@@ -1,0 +1,35 @@
+[
+  {
+    "id": "site-alpha",
+    "name": "Shackleton Rim Ridge Alpha",
+    "grid_x": 88,
+    "grid_y": 64,
+    "lat": -89.85,
+    "lon": 120.4,
+    "elevation_m": -319.844836746207,
+    "description": "High illumination ridge along North Shackleton Rim. Excellent communications and solar access with safe approach slopes.",
+    "data_type": "DEMO / SIMULATION DATA"
+  },
+  {
+    "id": "site-beta",
+    "name": "Connecting Ridge Plateau Beta",
+    "grid_x": 42,
+    "grid_y": 90,
+    "lat": -89.72,
+    "lon": 45.2,
+    "elevation_m": 133.11123201942314,
+    "description": "Smooth plateau near crater connecting ridge. Moderate slope with direct access to PSR sampling zones.",
+    "data_type": "DEMO / SIMULATION DATA"
+  },
+  {
+    "id": "site-gamma",
+    "name": "Outer Ejecta Plain Gamma",
+    "grid_x": 20,
+    "grid_y": 20,
+    "lat": -89.5,
+    "lon": -110.1,
+    "elevation_m": -10.220407703645877,
+    "description": "Ultra-safe flat landing plain outside crater ejecta blanket. Long rover traverse required to reach primary PSR targets.",
+    "data_type": "DEMO / SIMULATION DATA"
+  }
+]

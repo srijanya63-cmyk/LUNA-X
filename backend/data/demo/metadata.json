@@ -1,0 +1,27 @@
+{
+  "dataset_name": "LUNA-X South Pole Shackleton Demo Grid",
+  "mode": "DEMO / SIMULATION DATA MODE",
+  "is_synthetic": true,
+  "grid_shape": [
+    128,
+    128
+  ],
+  "pixel_resolution_m": 78.125,
+  "bounding_box_meters": {
+    "x_min": -5000.0,
+    "x_max": 5000.0,
+    "y_min": -5000.0,
+    "y_max": 5000.0
+  },
+  "target_crater": "Shackleton Crater Region (-89.9\u00b0S, 0.0\u00b0E)",
+  "reference_frame": "Polar Stereographic",
+  "created_with_seed": 42,
+  "layers": [
+    "dem_south_pole.npy",
+    "cpr_south_pole.npy",
+    "temp_south_pole.npy",
+    "fuv_albedo_south_pole.npy",
+    "illumination_south_pole.npy",
+    "earth_comm_south_pole.npy"
+  ]
+}
