@@ -10,7 +10,8 @@ import {
   ExplainMissionResponse
 } from '../types';
 
-const API_BASE_URL = ((import.meta as any).env?.VITE_API_BASE_URL as string) || 'http://127.0.0.1:8001/api/v1';
+const rawBaseUrl = ((import.meta as any).env?.VITE_API_BASE_URL as string) || 'http://127.0.0.1:8001/api/v1';
+const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
 
 async function fetchJSON<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
