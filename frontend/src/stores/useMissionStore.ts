@@ -208,6 +208,7 @@ export const useMissionStore = create<MissionStateStore>((set, get) => ({
   setAutonomousStep: (step) => set({ autonomousStep: step }),
 
   planMission: async () => {
+    if (get().isPlanning) return;
     set({ isPlanning: true, error: null, isPlaying: false, roverNodeIndex: 0 });
     get().addActivityLog({ type: 'info', category: 'SOLVER', message: 'Weighted A* Pathfinding solver initiated...' });
 
@@ -216,7 +217,10 @@ export const useMissionStore = create<MissionStateStore>((set, get) => ({
 
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
-        plan = await api.planMission(get().config);
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Backend connection timed out during spin-up')), 12000)
+        );
+        plan = await Promise.race([api.planMission(get().config), timeoutPromise]);
         lastErr = null;
         break;
       } catch (err: any) {
@@ -228,7 +232,7 @@ export const useMissionStore = create<MissionStateStore>((set, get) => ({
             message: 'WAKING UP LUNAR ENGINE... Retrying pathfinding solver...',
           });
           useUIStore.getState().setNotification('info', 'WAKING UP LUNAR ENGINE: Retrying pathfinding solver...');
-          await new Promise((res) => setTimeout(res, 2500));
+          await new Promise((res) => setTimeout(res, 2000));
         }
       }
     }
@@ -364,6 +368,8 @@ export const useMissionStore = create<MissionStateStore>((set, get) => ({
   },
 
   startDemoMission: async () => {
+    if (get().isPlanning) return;
+
     let candidates = useTerrainStore.getState().landingCandidates;
     if (candidates.length === 0) {
       await useTerrainStore.getState().fetchTerrainData();

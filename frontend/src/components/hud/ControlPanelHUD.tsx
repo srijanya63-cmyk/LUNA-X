@@ -66,18 +66,23 @@ export const ControlPanelHUD: React.FC = () => {
   };
 
   const handleStartDemo = async () => {
+    if (isPlanning) return;
+
     setNotification('info', 'WAKING UP LUNAR ENGINE: Planning optimal rover route...');
     await startDemoMission();
     const plan = useMissionStore.getState().missionPlan;
     const err = useMissionStore.getState().error;
+
     if (err) {
       setNotification('error', `DEMO INITIALIZATION FAILED: ${err}`);
     } else if (plan && !plan.success) {
       setNotification('warning', `DEMO ROUTE INFEASIBLE: ${plan.explanation?.reason || 'Terrain constraints prevented route.'}`);
       setViewMode('mission_twin');
-    } else {
+    } else if (plan && plan.success && plan.path.length > 0) {
       setNotification('success', 'DEMO MISSION INITIALIZED: Rover traverse simulation active.');
       setViewMode('mission_twin');
+    } else {
+      setNotification('error', 'DEMO INITIALIZATION FAILED: Unable to generate route with lunar engine.');
     }
   };
 
