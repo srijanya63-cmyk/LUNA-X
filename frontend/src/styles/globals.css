@@ -1,0 +1,257 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -------------------------------------------------------------
+   LUNA-X — DEEP BLUE OUTER SPACE CANVAS & LIGHT UI SYSTEM
+------------------------------------------------------------- */
+
+/* 1. Global Inter Font Family & Base Setup */
+* {
+  font-family: 'Inter', Arial, sans-serif !important;
+}
+
+body {
+  background-color: #f4f9fc !important;
+  color: #173b56 !important;
+  font-family: 'Inter', Arial, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 2. Deep Blue Outer Space 3D Canvas Background (#020B1A -> #061A33 -> #0A2F52) */
+.deep-space-canvas {
+  background: radial-gradient(circle at 50% 50%, #0a2f52 0%, #061a33 45%, #020b1a 100%) !important;
+}
+
+/* 3. LUNA-X Single Line Logo Rule */
+h1, .logo-luna-x {
+  white-space: nowrap !important;
+  font-weight: 900 !important;
+  color: #123b5d !important;
+}
+
+/* 4. Typography Scale Matching Approved Scale */
+.text-\[9px\] {
+  font-size: 10px !important;
+  line-height: 14px !important;
+}
+.text-\[10px\] {
+  font-size: 11px !important;
+  line-height: 15px !important;
+}
+.text-\[11px\] {
+  font-size: 12px !important;
+  line-height: 16px !important;
+}
+.text-xs {
+  font-size: 13.5px !important;
+  line-height: 19px !important;
+}
+.text-sm {
+  font-size: 14.5px !important;
+  line-height: 20px !important;
+}
+.text-base {
+  font-size: 16.5px !important;
+  line-height: 23px !important;
+}
+.text-lg {
+  font-size: 19.5px !important;
+  line-height: 26px !important;
+}
+.text-xl {
+  font-size: 24px !important;
+  line-height: 30px !important;
+  white-space: nowrap !important;
+}
+.text-2xl {
+  font-size: 27px !important;
+  line-height: 34px !important;
+}
+.text-3xl {
+  font-size: 30px !important;
+  line-height: 38px !important;
+}
+.text-4xl {
+  font-size: 38px !important;
+  line-height: 46px !important;
+}
+
+/* 5. White / Light Blue Aerospace Surface Panels (Preserved Unchanged) */
+.glass-panel-dark,
+.glass-panel-dark-glow,
+.bg-slate-950,
+.bg-slate-900 {
+  background-color: #ffffff !important;
+  border-color: #d6e7ef !important;
+}
+
+.bg-slate-950\/40,
+.bg-slate-900\/40 {
+  background-color: #eaf4f8 !important;
+  border-color: #d6e7ef !important;
+}
+
+.bg-slate-950\/60,
+.bg-slate-900\/60 {
+  background-color: #f4f9fc !important;
+  border-color: #d6e7ef !important;
+}
+
+.bg-slate-950\/75,
+.bg-slate-900\/75,
+.bg-slate-950\/80,
+.bg-slate-900\/80,
+.bg-slate-950\/85,
+.bg-slate-900\/85,
+.bg-slate-950\/90,
+.bg-slate-900\/90,
+.bg-slate-950\/95,
+.bg-slate-900\/95 {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: 0 8px 25px -4px rgba(18, 59, 93, 0.08), 0 3px 10px -2px rgba(18, 59, 93, 0.04) !important;
+  border-color: #d6e7ef !important;
+}
+
+/* 6. Blue-Gray Borders */
+.border-slate-800,
+.border-slate-700,
+.border-slate-800\/80,
+.border-slate-700\/80,
+.border-slate-800\/60,
+.border-slate-700\/60 {
+  border-color: #d6e7ef !important;
+}
+
+/* 7. Typography Color Hierarchy (Deep Navy & Slate Blue) */
+.text-slate-100,
+.text-slate-200 {
+  color: #173b56 !important; /* Main Dark Blue Text */
+}
+
+.text-slate-300 {
+  color: #123b5d !important; /* Deep Navy Headings */
+}
+
+.text-slate-400 {
+  color: #55758a !important; /* Secondary Muted Blue-Gray */
+}
+
+.text-slate-500 {
+  color: #7899af !important;
+}
+
+/* 8. Blue / Cyan Aerospace Color System */
+.text-sky-400,
+.text-sky-300 {
+  color: #075a91 !important; /* Primary Deep Blue */
+}
+
+.bg-sky-500 {
+  background-color: #16b8d4 !important; /* Lunar Cyan Accent */
+  color: #ffffff !important;
+}
+
+.bg-sky-500:hover {
+  background-color: #075a91 !important;
+}
+
+.bg-sky-950,
+.bg-sky-950\/40,
+.bg-sky-950\/60,
+.bg-sky-950\/80 {
+  background-color: #ddf7fc !important; /* Light Cyan Surface */
+  border-color: #b2ecf7 !important;
+}
+
+.text-emerald-400,
+.text-emerald-300 {
+  color: #16a66a !important; /* Success Green */
+}
+
+.bg-emerald-950,
+.bg-emerald-950\/40,
+.bg-emerald-950\/60,
+.bg-emerald-950\/80,
+.bg-teal-950,
+.bg-teal-950\/40,
+.bg-teal-950\/60,
+.bg-teal-950\/80 {
+  background-color: #e6f7f0 !important;
+  border-color: #a8ebd0 !important;
+}
+
+.text-teal-400,
+.text-teal-300 {
+  color: #0d8a70 !important;
+}
+
+.text-amber-400,
+.text-amber-300 {
+  color: #d99a22 !important; /* Warning Amber */
+}
+
+.bg-amber-950,
+.bg-amber-950\/40,
+.bg-amber-950\/60,
+.bg-amber-950\/80 {
+  background-color: #fef8eb !important;
+  border-color: #fde8b8 !important;
+}
+
+.text-rose-400,
+.text-rose-300 {
+  color: #d84b4b !important; /* Critical Red */
+}
+
+.bg-rose-950,
+.bg-rose-950\/40,
+.bg-rose-950\/60,
+.bg-rose-950\/80 {
+  background-color: #fdf2f2 !important;
+  border-color: #fbc6c6 !important;
+}
+
+.text-purple-400,
+.text-purple-300 {
+  color: #6b46c1 !important;
+}
+
+.bg-purple-950,
+.bg-purple-950\/40,
+.bg-purple-950\/60,
+.bg-purple-950\/80 {
+  background-color: #f7f3ff !important;
+  border-color: #e2d5ff !important;
+}
+
+/* 9. Buttons & Navigation Pills */
+.bg-slate-800 {
+  background-color: #eaf4f8 !important;
+  color: #123b5d !important;
+  border-color: #d6e7ef !important;
+}
+
+.bg-slate-800:hover {
+  background-color: #ddf7fc !important;
+}
+
+/* 10. Soft Blue Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f4f9fc;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d6e7ef;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #16b8d4;
+}
