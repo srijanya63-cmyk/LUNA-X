@@ -210,8 +210,30 @@ export const useMissionStore = create<MissionStateStore>((set, get) => ({
   planMission: async () => {
     set({ isPlanning: true, error: null, isPlaying: false, roverNodeIndex: 0 });
     get().addActivityLog({ type: 'info', category: 'SOLVER', message: 'Weighted A* Pathfinding solver initiated...' });
-    try {
-      const plan = await api.planMission(get().config);
+
+    let plan = null;
+    let lastErr = null;
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        plan = await api.planMission(get().config);
+        lastErr = null;
+        break;
+      } catch (err: any) {
+        lastErr = err;
+        if (attempt < 2) {
+          get().addActivityLog({
+            type: 'warning',
+            category: 'SOLVER',
+            message: 'WAKING UP LUNAR ENGINE... Retrying pathfinding solver...',
+          });
+          useUIStore.getState().setNotification('info', 'WAKING UP LUNAR ENGINE: Retrying pathfinding solver...');
+          await new Promise((res) => setTimeout(res, 2500));
+        }
+      }
+    }
+
+    if (plan) {
       set({ missionPlan: plan, isPlanning: false });
       get().addActivityLog({
         type: 'success',
@@ -233,9 +255,10 @@ export const useMissionStore = create<MissionStateStore>((set, get) => ({
         .catch(() => {
           set({ aiExplanation: `Mission planned successfully: ${plan.explanation.reason}` });
         });
-    } catch (err: any) {
-      set({ error: err.message || 'Mission planning failed', isPlanning: false });
-      get().addActivityLog({ type: 'error', category: 'SOLVER', message: `Pathfinding failed: ${err.message}` });
+    } else {
+      const errMsg = lastErr?.message || 'Mission planning failed';
+      set({ error: errMsg, isPlanning: false });
+      get().addActivityLog({ type: 'error', category: 'SOLVER', message: `Pathfinding failed: ${errMsg}` });
     }
   },
 

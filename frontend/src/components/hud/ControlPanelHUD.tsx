@@ -66,7 +66,7 @@ export const ControlPanelHUD: React.FC = () => {
   };
 
   const handleStartDemo = async () => {
-    setNotification('info', 'INITIALIZING DEMO: Planning optimal rover route...');
+    setNotification('info', 'WAKING UP LUNAR ENGINE: Planning optimal rover route...');
     await startDemoMission();
     const plan = useMissionStore.getState().missionPlan;
     const err = useMissionStore.getState().error;
