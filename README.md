@@ -4,6 +4,23 @@
 
 ---
 
+## 🚀 Live Demo
+
+[![Launch LUNA-X Live Demo](https://img.shields.io/badge/Launch%20LUNA--X-Live%20Demo-0070f3?style=for-the-badge&logo=vercel&logoColor=white)](https://frontend-flax-five-93.vercel.app)
+
+🌙 **[Launch LUNA-X Live Demo](https://frontend-flax-five-93.vercel.app)**
+
+Explore the interactive 3D Lunar Mission Control, landing site analysis, and autonomous rover simulation live in your browser.
+
+### 🌐 Production Architecture
+- **Frontend**: Deployed on [Vercel](https://vercel.com) — [https://frontend-flax-five-93.vercel.app](https://frontend-flax-five-93.vercel.app)
+- **Backend API**: Deployed on [Render](https://render.com) — [https://luna-x-backend.onrender.com](https://luna-x-backend.onrender.com)
+- **Source Code**: Hosted on [GitHub](https://github.com/srijanya63-cmyk/LUNA-X) — [https://github.com/srijanya63-cmyk/LUNA-X](https://github.com/srijanya63-cmyk/LUNA-X)
+
+> **Backend API Reference**: The live FastAPI engine is accessible at [`https://luna-x-backend.onrender.com/api/v1`](https://luna-x-backend.onrender.com/api/v1) (Interactive Swagger Docs at [`https://luna-x-backend.onrender.com/docs`](https://luna-x-backend.onrender.com/docs)).
+
+---
+
 ## 🛰️ Project Overview
 
 **LUNA-X** answers the fundamental lunar exploration question:
