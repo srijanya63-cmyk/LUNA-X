@@ -113,3 +113,7 @@ Detailed architectural specs and scientific documentation can be found in `docs/
 ## 📜 License & Citation
 
 Licensed under the MIT License. Developed for academic demonstration and mission simulation research.
+
+## Contributors
+-Srijanya-Project Lead
+-Sakshi gupta - Contributor
