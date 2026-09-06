@@ -35,7 +35,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Root Health Check endpoint
+# Root Health Check endpoints
+@app.get("/", tags=["Health"])
+async def root():
+    return {
+        "status": "ok",
+        "service": settings.PROJECT_NAME,
+        "version": settings.VERSION,
+        "docs": "/docs"
+    }
+
 app.get("/health", tags=["Health"])(health_check)
 
 # Include API v1 routes
