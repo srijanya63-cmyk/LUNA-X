@@ -76,13 +76,13 @@ interface MissionStateStore {
 }
 
 const DEFAULT_CONFIG: MissionConfig = {
-  start_pos: [88, 64],
-  target_pos: [64, 64],
-  energy_budget_wh: 500.0,
+  start_pos: [20, 20],
+  target_pos: [32, 35],
+  energy_budget_wh: 600.0,
   risk_tolerance: 'medium',
   objective: 'balanced',
-  max_allowed_slope_deg: 18.0,
-  max_allowed_hazard: 0.75,
+  max_allowed_slope_deg: 25.0,
+  max_allowed_hazard: 0.80,
   risk_weight: 0.35,
   energy_weight: 0.35,
   distance_weight: 0.30,
@@ -341,28 +341,31 @@ export const useMissionStore = create<MissionStateStore>((set, get) => ({
   },
 
   startDemoMission: async () => {
-    set({ config: DEFAULT_CONFIG });
     let candidates = useTerrainStore.getState().landingCandidates;
     if (candidates.length === 0) {
       await useTerrainStore.getState().fetchTerrainData();
       candidates = useTerrainStore.getState().landingCandidates;
     }
-    if (candidates.length > 0) {
-      const demoSite = candidates[0];
-      useTerrainStore.getState().setSelectedCandidate(demoSite);
-      set({
-        config: {
-          ...DEFAULT_CONFIG,
-          start_pos: [demoSite.grid_x, demoSite.grid_y],
-          target_pos: [Math.min(127, demoSite.grid_x + 12), Math.min(127, demoSite.grid_y + 15)],
-          energy_budget_wh: 600.0,
-        },
-      });
-    }
+    const demoSite = candidates.length > 0 ? candidates[0] : { grid_x: 20, grid_y: 20 };
+    useTerrainStore.getState().setSelectedCandidate(demoSite as any);
+
+    set({
+      roverNodeIndex: 0,
+      isPlaying: false,
+      config: {
+        ...DEFAULT_CONFIG,
+        start_pos: [demoSite.grid_x, demoSite.grid_y],
+        target_pos: [Math.min(127, demoSite.grid_x + 12), Math.min(127, demoSite.grid_y + 15)],
+        energy_budget_wh: 600.0,
+        max_allowed_slope_deg: 25.0,
+        max_allowed_hazard: 0.80,
+      },
+    });
+
     await get().planMission();
     const plan = get().missionPlan;
     if (plan && plan.success) {
-      set({ isPlaying: true, autonomousStep: 'traversing' });
+      set({ isPlaying: true, roverNodeIndex: 0, autonomousStep: 'traversing' });
     }
   },
 
