@@ -66,8 +66,8 @@ class IntelligenceService:
                     candidates_raw = json.load(f)
             else:
                 candidates_raw = [
-                    {"id": "site-alpha", "name": "Shackleton Rim Alpha", "grid_x": 88, "grid_y": 64},
-                    {"id": "site-beta", "name": "Connecting Ridge Beta", "grid_x": 42, "grid_y": 90}
+                    {"id": "site-alpha", "name": "South Pole Plain Alpha", "grid_x": 20, "grid_y": 20},
+                    {"id": "site-beta", "name": "Connecting Ridge Beta", "grid_x": 42, "grid_y": 42}
                 ]
 
         optimizer = LandingSiteOptimizer(weights) if weights else self.site_optimizer

@@ -346,7 +346,18 @@ export const useMissionStore = create<MissionStateStore>((set, get) => ({
       await useTerrainStore.getState().fetchTerrainData();
       candidates = useTerrainStore.getState().landingCandidates;
     }
-    const demoSite = candidates.length > 0 ? candidates[0] : { grid_x: 20, grid_y: 20 };
+    
+    let startX = 20;
+    let startY = 20;
+    if (candidates.length > 0) {
+      const site = candidates[0];
+      if (site.grid_x !== 88 || site.grid_y !== 64) {
+        startX = site.grid_x;
+        startY = site.grid_y;
+      }
+    }
+
+    const demoSite = candidates.length > 0 ? candidates[0] : { grid_x: startX, grid_y: startY };
     useTerrainStore.getState().setSelectedCandidate(demoSite as any);
 
     set({
@@ -354,8 +365,8 @@ export const useMissionStore = create<MissionStateStore>((set, get) => ({
       isPlaying: false,
       config: {
         ...DEFAULT_CONFIG,
-        start_pos: [demoSite.grid_x, demoSite.grid_y],
-        target_pos: [Math.min(127, demoSite.grid_x + 12), Math.min(127, demoSite.grid_y + 15)],
+        start_pos: [startX, startY],
+        target_pos: [Math.min(127, startX + 12), Math.min(127, startY + 15)],
         energy_budget_wh: 600.0,
         max_allowed_slope_deg: 25.0,
         max_allowed_hazard: 0.80,
@@ -364,7 +375,7 @@ export const useMissionStore = create<MissionStateStore>((set, get) => ({
 
     await get().planMission();
     const plan = get().missionPlan;
-    if (plan && plan.success) {
+    if (plan && plan.success && plan.path.length > 0) {
       set({ isPlaying: true, roverNodeIndex: 0, autonomousStep: 'traversing' });
     }
   },

@@ -66,9 +66,19 @@ export const ControlPanelHUD: React.FC = () => {
   };
 
   const handleStartDemo = async () => {
+    setNotification('info', 'INITIALIZING DEMO: Planning optimal rover route...');
     await startDemoMission();
-    setNotification('success', 'DEMO MISSION INITIALIZED: Traverse simulation active.');
-    setViewMode('mission_twin');
+    const plan = useMissionStore.getState().missionPlan;
+    const err = useMissionStore.getState().error;
+    if (err) {
+      setNotification('error', `DEMO INITIALIZATION FAILED: ${err}`);
+    } else if (plan && !plan.success) {
+      setNotification('warning', `DEMO ROUTE INFEASIBLE: ${plan.explanation?.reason || 'Terrain constraints prevented route.'}`);
+      setViewMode('mission_twin');
+    } else {
+      setNotification('success', 'DEMO MISSION INITIALIZED: Rover traverse simulation active.');
+      setViewMode('mission_twin');
+    }
   };
 
   const handleStartAutonomous = async () => {
