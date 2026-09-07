@@ -5,11 +5,11 @@ services:
     region: singapore
     plan: free
     rootDir: backend
-    buildCommand: pip install --no-cache-dir -r requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.8
+        value: 3.10.11
       - key: CORS_ORIGINS
         value: "*"
