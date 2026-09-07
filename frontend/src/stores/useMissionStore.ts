@@ -212,57 +212,45 @@ export const useMissionStore = create<MissionStateStore>((set, get) => ({
     set({ isPlanning: true, error: null, isPlaying: false, roverNodeIndex: 0 });
     get().addActivityLog({ type: 'info', category: 'SOLVER', message: 'Weighted A* Pathfinding solver initiated...' });
 
-    let plan = null;
-    let lastErr = null;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
+      const plan = await api.planMission(get().config, { signal: controller.signal });
+      clearTimeout(timeoutId);
 
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Backend connection timed out during spin-up')), 12000)
-        );
-        plan = await Promise.race([api.planMission(get().config), timeoutPromise]);
-        lastErr = null;
-        break;
-      } catch (err: any) {
-        lastErr = err;
-        if (attempt < 2) {
-          get().addActivityLog({
-            type: 'warning',
-            category: 'SOLVER',
-            message: 'WAKING UP LUNAR ENGINE... Retrying pathfinding solver...',
-          });
-          useUIStore.getState().setNotification('info', 'WAKING UP LUNAR ENGINE: Retrying pathfinding solver...');
-          await new Promise((res) => setTimeout(res, 2000));
-        }
-      }
-    }
-
-    if (plan) {
-      set({ missionPlan: plan, isPlanning: false });
-      get().addActivityLog({
-        type: 'success',
-        category: 'SOLVER',
-        message: `Route solved successfully! Path: ${plan.path.length} waypoints, Distance: ${plan.metrics.distance_m.toFixed(0)}m, Energy: ${plan.metrics.estimated_energy_wh.toFixed(1)}Wh.`,
-      });
-
-      // Automatically fetch briefing explanation in background (non-blocking)
-      api
-        .explainMission({
-          objective: plan.explanation.objective,
-          distance_m: plan.metrics.distance_m,
-          energy_wh: plan.metrics.estimated_energy_wh,
-          reason: plan.explanation.reason,
-        })
-        .then((briefing) => {
-          set({ aiExplanation: briefing.explanation_text });
-        })
-        .catch(() => {
-          set({ aiExplanation: `Mission planned successfully: ${plan.explanation.reason}` });
+      if (plan && plan.success) {
+        set({ missionPlan: plan, error: null });
+        get().addActivityLog({
+          type: 'success',
+          category: 'SOLVER',
+          message: `Route solved successfully! Path: ${plan.path.length} waypoints, Distance: ${plan.metrics.distance_m.toFixed(0)}m, Energy: ${plan.metrics.estimated_energy_wh.toFixed(1)}Wh.`,
         });
-    } else {
-      const errMsg = lastErr?.message || 'Mission planning failed';
-      set({ error: errMsg, isPlanning: false });
+
+        // Automatically fetch briefing explanation in background (non-blocking)
+        api
+          .explainMission({
+            objective: plan.explanation.objective,
+            distance_m: plan.metrics.distance_m,
+            energy_wh: plan.metrics.estimated_energy_wh,
+            reason: plan.explanation.reason,
+          })
+          .then((briefing) => {
+            set({ aiExplanation: briefing.explanation_text });
+          })
+          .catch(() => {
+            set({ aiExplanation: `Mission planned successfully: ${plan.explanation.reason}` });
+          });
+      } else {
+        const errMsg = plan?.explanation?.reason || 'Mission planning failed';
+        set({ error: errMsg, missionPlan: plan || null });
+        get().addActivityLog({ type: 'error', category: 'SOLVER', message: `Pathfinding failed: ${errMsg}` });
+      }
+    } catch (err: any) {
+      const errMsg = err.name === 'AbortError' ? 'Pathfinding solver request timed out' : (err.message || 'Mission planning failed');
+      set({ error: errMsg, missionPlan: null });
       get().addActivityLog({ type: 'error', category: 'SOLVER', message: `Pathfinding failed: ${errMsg}` });
+    } finally {
+      set({ isPlanning: false });
     }
   },
 
@@ -370,42 +358,120 @@ export const useMissionStore = create<MissionStateStore>((set, get) => ({
   startDemoMission: async () => {
     if (get().isPlanning) return;
 
-    let candidates = useTerrainStore.getState().landingCandidates;
-    if (candidates.length === 0) {
-      await useTerrainStore.getState().fetchTerrainData();
-      candidates = useTerrainStore.getState().landingCandidates;
-    }
-    
-    let startX = 20;
-    let startY = 20;
-    if (candidates.length > 0) {
-      const site = candidates[0];
-      if (site.grid_x !== 88 || site.grid_y !== 64) {
-        startX = site.grid_x;
-        startY = site.grid_y;
-      }
-    }
-
-    const demoSite = candidates.length > 0 ? candidates[0] : { grid_x: startX, grid_y: startY };
-    useTerrainStore.getState().setSelectedCandidate(demoSite as any);
-
     set({
-      roverNodeIndex: 0,
+      isPlanning: true,
+      error: null,
       isPlaying: false,
-      config: {
+      roverNodeIndex: 0,
+      autonomousStep: 'analyzing',
+    });
+
+    get().addActivityLog({
+      type: 'info',
+      category: 'DEMO',
+      message: 'Initializing Demo Mission... Waking up Lunar Engine backend...',
+    });
+    useUIStore.getState().setNotification('info', 'WAKING UP LUNAR ENGINE: Checking backend health & waking container...');
+
+    try {
+      // Step A: Wake backend using /health with bounded polling (up to 45s total window, 4s per poll)
+      const wakeStartTime = Date.now();
+      const MAX_WAKE_MS = 45000;
+      let isBackendReady = false;
+
+      while (Date.now() - wakeStartTime < MAX_WAKE_MS) {
+        try {
+          const controller = new AbortController();
+          const tId = setTimeout(() => controller.abort(), 4000);
+          const health = await api.getHealth({ signal: controller.signal });
+          clearTimeout(tId);
+          if (health && (health.status === 'ok' || health.version)) {
+            isBackendReady = true;
+            break;
+          }
+        } catch (_) {
+          // Backend container still waking up, wait 3s before next attempt
+          await new Promise((res) => setTimeout(res, 3000));
+        }
+      }
+
+      if (!isBackendReady) {
+        throw new Error('Backend connection timed out during spin-up. Please ensure backend service is active.');
+      }
+
+      // Step B: Backend ready -> transition to planning
+      set({ autonomousStep: 'planning' });
+      useUIStore.getState().setNotification('info', 'LUNAR ENGINE READY: Planning optimal demo route...');
+      get().addActivityLog({
+        type: 'info',
+        category: 'DEMO',
+        message: 'Backend responsive. Executing demo pathfinding solver...',
+      });
+
+      // Ensure landing candidates are loaded
+      let candidates = useTerrainStore.getState().landingCandidates;
+      if (candidates.length === 0) {
+        await useTerrainStore.getState().fetchTerrainData();
+        candidates = useTerrainStore.getState().landingCandidates;
+      }
+
+      let startX = 20;
+      let startY = 20;
+      if (candidates.length > 0) {
+        const site = candidates[0];
+        if (site.grid_x !== 88 || site.grid_y !== 64) {
+          startX = site.grid_x;
+          startY = site.grid_y;
+        }
+      }
+
+      const demoSite = candidates.length > 0 ? candidates[0] : { grid_x: startX, grid_y: startY };
+      useTerrainStore.getState().setSelectedCandidate(demoSite as any);
+
+      const demoConfig: MissionConfig = {
         ...DEFAULT_CONFIG,
         start_pos: [startX, startY],
         target_pos: [Math.min(127, startX + 12), Math.min(127, startY + 15)],
         energy_budget_wh: 600.0,
         max_allowed_slope_deg: 25.0,
         max_allowed_hazard: 0.80,
-      },
-    });
+      };
 
-    await get().planMission();
-    const plan = get().missionPlan;
-    if (plan && plan.success && plan.path.length > 0) {
-      set({ isPlaying: true, roverNodeIndex: 0, autonomousStep: 'traversing' });
+      set({ config: demoConfig });
+
+      // Step C: Single bounded planMission call (15s timeout with abort signal)
+      const planController = new AbortController();
+      const planTimeoutId = setTimeout(() => planController.abort(), 15000);
+      const plan = await api.planMission(demoConfig, { signal: planController.signal });
+      clearTimeout(planTimeoutId);
+
+      if (plan && plan.success && plan.path && plan.path.length > 1) {
+        // Step D: Real plan received -> transition to traversing & Mission Twin
+        set({
+          missionPlan: plan,
+          error: null,
+          roverNodeIndex: 0,
+          isPlaying: true,
+          autonomousStep: 'traversing',
+        });
+        useUIStore.getState().setViewMode('mission_twin');
+        useUIStore.getState().setNotification('success', 'DEMO MISSION INITIALIZED: Rover traverse simulation active.');
+        get().addActivityLog({
+          type: 'success',
+          category: 'DEMO',
+          message: `Demo mission initialized cleanly with ${plan.path.length} waypoints. Starting rover traversal.`,
+        });
+      } else {
+        const reason = plan?.explanation?.reason || 'Demo route calculation failed to produce a valid path.';
+        throw new Error(reason);
+      }
+    } catch (err: any) {
+      const errMsg = err.name === 'AbortError' ? 'Demo pathfinding request timed out' : (err.message || 'Demo initialization failed');
+      set({ error: errMsg, isPlaying: false, autonomousStep: 'idle' });
+      useUIStore.getState().setNotification('error', `DEMO INITIALIZATION FAILED: ${errMsg}`);
+      get().addActivityLog({ type: 'error', category: 'DEMO', message: `Demo initialization error: ${errMsg}` });
+    } finally {
+      set({ isPlanning: false });
     }
   },
 

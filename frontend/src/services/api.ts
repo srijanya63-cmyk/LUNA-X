@@ -32,13 +32,13 @@ async function fetchJSON<T>(endpoint: string, options?: RequestInit): Promise<T>
 
 export const api = {
   // Health
-  getHealth: () => fetchJSON<{ status: string; version: string; scientific_engine: string; mission_engine: string; ollama: string }>('/health'),
+  getHealth: (options?: RequestInit) => fetchJSON<{ status: string; version: string; scientific_engine: string; mission_engine: string; ollama: string }>('/health', options),
 
   // Terrain
-  getTerrainSummary: () => fetchJSON<TerrainSummary>('/terrain'),
+  getTerrainSummary: (options?: RequestInit) => fetchJSON<TerrainSummary>('/terrain', options),
 
   // Intelligence
-  getIceLikelihood: (params?: { w_cpr?: number; w_psr?: number; w_albedo?: number; w_slope?: number }) => {
+  getIceLikelihood: (params?: { w_cpr?: number; w_psr?: number; w_albedo?: number; w_slope?: number }, options?: RequestInit) => {
     const query = new URLSearchParams();
     if (params?.w_cpr !== undefined) query.append('w_cpr', params.w_cpr.toString());
     if (params?.w_psr !== undefined) query.append('w_psr', params.w_psr.toString());
@@ -46,20 +46,22 @@ export const api = {
     if (params?.w_slope !== undefined) query.append('w_slope', params.w_slope.toString());
     
     const queryString = query.toString() ? `?${query.toString()}` : '';
-    return fetchJSON<IceLikelihoodResult>(`/intelligence/ice-likelihood${queryString}`);
+    return fetchJSON<IceLikelihoodResult>(`/intelligence/ice-likelihood${queryString}`, options);
   },
 
-  getLandingSites: (payload?: Record<string, any>) => 
+  getLandingSites: (payload?: Record<string, any>, options?: RequestInit) => 
     fetchJSON<LandingCandidate[]>('/intelligence/landing-sites', {
       method: 'POST',
       body: JSON.stringify(payload || {}),
+      ...options,
     }),
 
   // Mission
-  planMission: (config: MissionConfig) =>
+  planMission: (config: MissionConfig, options?: RequestInit) =>
     fetchJSON<MissionPlanResponsePayload>('/mission/plan', {
       method: 'POST',
       body: JSON.stringify(config),
+      ...options,
     }),
 
   sendMissionEvent: (missionId: string, eventType: string, payload: Record<string, any>) =>
